@@ -2,6 +2,7 @@
 #include "game.h"
 #include "util.h"
 #include <string>
+#include <stdlib>
 
 using namespace std;
 

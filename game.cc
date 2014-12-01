@@ -1,5 +1,6 @@
 #include "game.h"
 #include "merchant.h"
+#include <stdlib.h>
 
 using namespace std;
 /*************** Game constructor ************************
