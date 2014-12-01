@@ -17,7 +17,7 @@ public:
 	void addSelf();
 	int distTo(Entity* e);
 
-	~Entity();
+	virtual ~Entity();
 
 	static Game* game;
 };

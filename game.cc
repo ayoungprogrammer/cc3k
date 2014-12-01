@@ -2,7 +2,9 @@
 #include "merchant.h"
 
 using namespace std;
-
+/*************** Game constructor ************************
+	Purpose: Creates Game class
+*********************************************************/
 Game::Game(string levelFiles[5]){
 
 	Entity::game = this;
@@ -17,7 +19,6 @@ Game::Game(string levelFiles[5]){
 	actions = "";
 	level = 0;
 	state = GAME_START;
-	cerr<<"test2";
 	if(levelFiles != 0){
 		for(int i=0;i<5;i++){
 			this->levelFiles[i] = levelFiles[i];
@@ -31,6 +32,9 @@ Game::Game(string levelFiles[5]){
 	}
 }
 
+/*************** Game::init ************************
+	Purpose: Initializes Game
+*********************************************************/
 void Game::init(){
 	//reset level
 	level = 0;
@@ -40,17 +44,19 @@ void Game::init(){
 	state = GAME_RUNNING;
 	//reset merchant hostile flag
 	Merchant::hostile = false;
-	//reset gold
+	//reset gold / hp / boosts
 	player->reset();
 	addAction("Player character has spawned. ");
 }
 
+/*************** Game::run ************************
+	Purpose: Performs one turn for the game
+*********************************************************/
 void Game::run(){
 
 	if(state != GAME_RUNNING){
 		return;
 	}
-
 	//Check if player reached stairs
 	if(player->isAtStairs()){
 		level++;
@@ -63,31 +69,39 @@ void Game::run(){
 		addAction("Player character went up the stairs. ");
 		return;
 	}
-
 	for(int i=0;i<HEIGHT;i++){
 		for(int j=0;j<WIDTH;j++){
 			for(int k=0;k<npcs.size();k++){
 				if(occupied[i][j] == npcs[k]){
+					cerr<<"start";
 					npcs[k]->act();
+					cerr<<"end";
 				}
 			}
 		}
 	}
-
 	if(player->hp<=0){
 		state = GAME_LOST;
 	}
 }
-
+/*************** Game::getState ************************
+	Purpose: Get state of game
+	Returns: State of game
+*********************************************************/
 GameState Game::getState(){
 	return state;
 }
 
-
+/*************** Game::isStairs ************************
+	Purpose: Checks if grid locations is stairs
+*********************************************************/
 bool Game::isStairs(int x,int y){
 	return grid[x][y] == '/';
 }
 
+/*************** Game::addEntity ************************
+	Purpose: adds entity to grid
+*********************************************************/
 void Game::addEntity(int x,int y,Entity* e){
 	if(x < 0 || x >= HEIGHT || y < 0 || y >= WIDTH)return;
 	if(occupied[x][y] != 0){
@@ -97,6 +111,9 @@ void Game::addEntity(int x,int y,Entity* e){
 	occupied[x][y] = e;
 }
 
+/*************** Game::removeEntity ************************
+	Purpose: Removes entity from grid
+*********************************************************/
 void Game::removeEntity(int x,int y,Entity* e){
 	if(x < 0 || x >= HEIGHT || y < 0 || y >= WIDTH)return;
 	if(occupied[x][y] == 0){
@@ -110,14 +127,23 @@ void Game::removeEntity(int x,int y,Entity* e){
 	occupied[x][y] = 0;
 }
 
+/*************** Game::addNPC ************************
+	Purpose: Adds npc to game
+*********************************************************/
 void Game::addNPC(NPC* npc){
 	npcs.push_back(npc);
 }
 
+/*************** Game::addPotion ************************
+	Purpose: Adds potion to game
+*********************************************************/
 void Game::addPotion(Potion* potion){
 	potions.push_back(potion);
 }
 
+/*************** Game::getPotion ************************
+	Purpose: Gets potion from coordinates
+*********************************************************/
 Potion* Game::getPotion(int x,int y){
 	if(occupied[x][y] == 0)return 0;
 	if(x < 0 || x >= HEIGHT || y < 0 || y>= WIDTH)return 0;
@@ -129,10 +155,16 @@ Potion* Game::getPotion(int x,int y){
 	return 0;
 }
 
+/*************** Game::addTreasure ************************
+	Purpose: Adds treasure to game
+*********************************************************/
 void Game::addTreasure(Treasure* treasure){
 	treasures.push_back(treasure);
 }
 
+/*************** Game::getTreasure ************************
+	Purpose: Gets treasure from coordinates
+*********************************************************/
 Treasure* Game::getTreasure(int x,int y){
 	if(occupied[x][y] == 0)return 0;
 	if(x < 0 || x >= HEIGHT || y < 0 || y>= WIDTH)return 0;
@@ -144,14 +176,24 @@ Treasure* Game::getTreasure(int x,int y){
 	return 0;
 }
 
+/*************** Game::getEntity ************************
+	Purpose: gets Entity from coordinates
+*********************************************************/
 Entity* Game::getEntity(int x,int y){
 	return occupied[x][y];
 }
 
+
+/*************** Game::setPlayer ************************
+	Purpose: Sets player 
+*********************************************************/
 void Game::setPlayer(Player* p){
 	player = p;
 }
 
+/*************** Game::getRooms ************************
+	Purpose: Flood fill rooms to get number
+*********************************************************/
 void Game::getRooms(int x,int y,int roomNum){
 	if(x < 0 || x >= HEIGHT || y < 0 || y >= WIDTH)return;
 	if(grid[x][y] != '.')return;
@@ -163,6 +205,9 @@ void Game::getRooms(int x,int y,int roomNum){
 	getRooms(x,y-1,roomNum);
 }
 
+/*************** Game::getRandCoords ************************
+	Purpose: Returns a rand pair of coords
+*********************************************************/
 pair<int,int> Game::getRandCoords(int chamber){
 	int x,y;
 	do{
@@ -173,20 +218,60 @@ pair<int,int> Game::getRandCoords(int chamber){
 	return make_pair(x,y);
 }
 
+/*************** Game::addObject ************************
+	Purpose: Add object
+*********************************************************/
+void Game::addObject(char ch,int x,int y){
+	string npcSym = "DWEHLMO";
+	if(npcSym.find(ch)!=string::npos){
+		NPC* npc = NPC::createNPC(ch);
+		npc->setLocation(x,y);
+		addNPC(npc);
+	}else if(ch >= '0' && ch <= '5'){
+		Potion* potion = Potion::makePotion((PotionType)(ch-'0'));
+		potion->setLocation(x,y);
+		addPotion(potion);
+	}else if(ch >= '6' && ch <= '9'){
+		Treasure* t = Treasure::makeTreasure((TreasureType)(ch-'6'));
+		t->setLocation(x,y);
+		addTreasure(t);
+	}
+}
+
+/*************** Game::loadLevel ************************
+	Purpose: Loads level
+*********************************************************/
 void Game::loadLevel(istream& is){
 
 	srand(time(NULL));
 	clear();
 
+	bool customLoad = false;
+	string floorSym = " |-.#+/";
+
 	//Read in grid
 	for(int i=0;i<HEIGHT;i++){
 		for(int j=0;j<WIDTH;j++){
 			is.get(grid[i][j]);
-			rooms[i][j] = 0;
-			occupied[i][j] = 0;
+			if(floorSym.find(grid[i][j]) != string::npos){
+
+			}else if(grid[i][j] == '@'){
+				customLoad = true;
+				player->setLocation(i,j);
+				grid[i][j] = '.';
+			}else{
+				customLoad = true;
+				addObject(grid[i][j],i,j);
+				grid[i][j] = '.';
+			}
 		}
 		is.ignore();
 	}
+	//If using custom load, do not gen
+	if(customLoad){
+		return;
+	}
+
 	//Figure out room tiles
 	int roomNum = 1;
 	for(int i=0;i<HEIGHT;i++){
@@ -272,10 +357,16 @@ void Game::loadLevel(istream& is){
 	player->clearBoost();
 }
 
+/*************** Game::getRoom ************************
+	Purpose: Gets room chamber
+*********************************************************/
 int Game::getRoom(int x,int y){
 	return rooms[x][y];
 }
 
+/*************** Game::getNPC ************************
+	Purpose: Gets NPC at coordinate
+*********************************************************/
 NPC* Game::getNPC(int x,int y){
 	if(occupied[x][y] == 0)return 0;
 	if(x < 0 || x >= HEIGHT || y < 0 || y>= WIDTH)return 0;
@@ -287,6 +378,9 @@ NPC* Game::getNPC(int x,int y){
 	return 0;
 }
 
+/*************** Game::isClear ************************
+	Purpose: Determines if coordinate is clear
+*********************************************************/
 bool Game::isClear(int x,int y,bool ignoreCoin){
 	if(x < 0 || x >= HEIGHT || y < 0 || y >= WIDTH)return false;
 	if(occupied[x][y] != 0){
@@ -297,6 +391,9 @@ bool Game::isClear(int x,int y,bool ignoreCoin){
 	return (grid[x][y] == '.' || grid[x][y] == '#' || grid[x][y] == '+');
 }
 
+/*************** Game::hasSpaceAround ************************
+	Purpose: Checks if coordinate has space around
+*********************************************************/
 bool Game::hasSpaceAround(int x,int y){
 	bool hasSpace = false;
 	for(int dx = -1;dx <= 1; dx++){
@@ -310,17 +407,30 @@ bool Game::hasSpaceAround(int x,int y){
 	return hasSpace;
 }
 
+/*************** Game::getAction ************************
+	Purpose: Gets actions
+*********************************************************/
 string Game::getAction() const {
 	return actions;
 }
+
+/*************** Game::clearActions ************************
+	Purpose: Clears action
+*********************************************************/
 void Game::clearActions(){
 	actions = "";
 }
 
+/*************** Game::addAction ************************
+	Purpose: Adds action
+*********************************************************/
 void Game::addAction(std::string str){
 	actions += str;
 }
 
+/*************** Game::clear ************************
+	Purpose: Clears memory
+*********************************************************/
 void Game::clear(){
 	actions = "";
 	for(int i=0;i<npcs.size();i++){
@@ -338,14 +448,28 @@ void Game::clear(){
 	for(int i=0;i<HEIGHT;i++){
 		for(int j=0;j<WIDTH;j++){
 			occupied[i][j] = 0;
+			rooms[i][j] = 0;
 		}
 	}
 }
 
-int Game::getLevel() const{
-	return level;
+/*************** Game::getScore ************************
+	Purpose: Returns score
+*********************************************************/
+int Game::getScore(){
+	return player->getScore();
 }
 
+/*************** Game::getLevel ************************
+	Purpose: Returns level
+*********************************************************/
+int Game::getLevel() const{
+	return level+1;
+}
+
+/*************** Game destructor ************************
+	Purpose: Clears memory
+*********************************************************/
 Game::~Game(){
 	clear();
 }
@@ -363,7 +487,7 @@ ostream& operator<<(ostream &out, const Game &game){
 	}
 	out<<"Race: "<<game.player->getType()<<" ";
 	out<<"Gold: "<<game.player->getGold();
-	out<<"\t\t\t"<<game.getLevel()<<endl;
+	out<<"\t\t\t\t\t\tFloor: "<<game.getLevel()<<endl;
 	out<<"HP: "<<game.player->getHP()<<endl;
 	out<<"Atk: "<<game.player->getAttack()<<endl;
 	out<<"Def: "<<game.player->getDefense()<<endl;

@@ -9,8 +9,17 @@ using namespace std;
 
 
 
-int main(){
-	Game game;
+int main(int argc, char** argv){
+
+	string files[5];
+
+	if(argc > 1){
+		for(int i=0;i<5;i++)files[i] = argv[1];
+	}else{
+		for(int i=0;i<5;i++)files[i] = "floor1.txt";
+	}
+
+	Game game(files);
 	Player* player = 0;
 
 	cout<<endl;
@@ -80,9 +89,9 @@ int main(){
 	while(game.getState() == GAME_RUNNING){
 		cout<<game<<"Command (? for help): ";
 		cin>>cmd;
-		game.clearActions();
 		
 		if(cmd == "m" || cmd == "a" || cmd == "u"){
+			game.clearActions();
 			string str;
 			cin>>str;
 			pair<int,int> dir = getDirection(str);	
@@ -99,6 +108,7 @@ int main(){
 			}else if(cmd == "u"){
 				player->use(dx,dy);
 			}
+			game.run();
 		}else if(cmd == "r"){
 			game.init();
 		}else if(cmd == "q"){
@@ -138,13 +148,14 @@ int main(){
 		}else{
 			continue;
 		}
-		game.run();
 	}
 	if(game.getState() == GAME_WON){
-		cout<<"You win!"<<endl;
+		cout<<"You win! Score: "<<game.getScore()<<endl;
 	}else if(game.getState() == GAME_LOST){
 		cout<<"You lose!"<<endl;
 	}
+
+	delete player;
 
 
 }

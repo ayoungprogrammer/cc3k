@@ -6,6 +6,7 @@
 class Shade: public Player{
 public:
 	Shade();
+	int getScore();
 };
 
 #endif

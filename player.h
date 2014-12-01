@@ -38,6 +38,7 @@ public:
 
 	virtual int getAttack();
 	virtual int getDefense();
+	virtual int getScore();
 
 	void clearBoost();
 

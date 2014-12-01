@@ -5,8 +5,8 @@
 #include "npc.h"
 
 enum TreasureType{
-	SMALL_HOARD,
 	NORMAL_HOARD,
+	SMALL_HOARD,
 	MERCHANT_HOARD,
 	DRAGON_HOARD
 };

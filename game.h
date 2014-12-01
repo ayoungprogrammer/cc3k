@@ -41,6 +41,7 @@ private:
 	//Helper methods
 	void getRooms(int x,int y,int roomNum);
 	std::pair<int,int> getRandCoords(int chamber);
+	void addObject(char ch,int x,int y);
 
 public:
 	Player* player;
@@ -51,6 +52,7 @@ public:
 
 	GameState getState();
 	int getLevel() const;
+	int getScore();
 
  	std::string getAction() const;
 	void clearActions();

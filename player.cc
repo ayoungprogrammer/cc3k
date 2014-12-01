@@ -163,3 +163,7 @@ void Player::clearBoost(){
 	defBoost = 0;
 }
 
+
+int Player::getScore(){
+	return gold;
+}
