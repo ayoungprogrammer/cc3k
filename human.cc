@@ -1,6 +1,7 @@
 #include "human.h"
 #include "treasure.h"
 #include "game.h"
+#include <cstdlib>
 
 Human::Human():NPC('H',140,20,20){
 	

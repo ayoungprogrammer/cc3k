@@ -5,6 +5,7 @@
 
 #include "npclist.h"
 #include "treasure.h"
+#include <cstdlib>
 
 
 using namespace std;
