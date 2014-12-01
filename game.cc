@@ -74,9 +74,7 @@ void Game::run(){
 		for(int j=0;j<WIDTH;j++){
 			for(int k=0;k<npcs.size();k++){
 				if(occupied[i][j] == npcs[k]){
-					cerr<<"start";
 					npcs[k]->act();
-					cerr<<"end";
 				}
 			}
 		}
@@ -293,7 +291,7 @@ void Game::loadLevel(istream& is){
 	int stairChamber;
 	do{
 		stairChamber = rand() % CHAMBERS + 1;;
-	}while(stairChamber != playerChamber); //#debug
+	}while(stairChamber == playerChamber);
 	pair<int,int> stairCoords = getRandCoords(stairChamber);
 	grid[stairCoords.first][stairCoords.second] = '/';
 
